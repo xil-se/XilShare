@@ -3,4 +3,6 @@ android:
   components:
     - build-tools-26.0.0
 
+jdk: oraclejdk8
+
 script: ./gradlew build
