@@ -3,4 +3,4 @@ android:
   components:
     - build-tools-26.0.0
 
-script: ant debug
+script: ./gradlew build
