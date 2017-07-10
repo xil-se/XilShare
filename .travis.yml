@@ -3,6 +3,11 @@ android:
   components:
     - build-tools-26.0.0
 
+licenses:
+    - 'android-sdk-preview-license-.+'
+    - 'android-sdk-license-.+'
+    - 'google-gdk-license-.+'
+
 jdk: oraclejdk8
 
 script: ./gradlew build
