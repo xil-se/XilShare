@@ -1,22 +1,23 @@
 package se.xil.instashare;
 
+import android.Manifest;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String PREFS_NAME = "InstaShareSettings";
-    private static final String SETTINGS_URL = "SETTINGS_URL";
-    private static final String SETTINGS_SECRET= "SETTINGS_SECRET";
+    private static final String TAG = "InstaShare";
+    private static final int PERMISSION_REQUEST_CODE = 1;
+
     private Button settingsSaveButton;
     private TextView settingsURLText;
     private TextView settingsSecretText;
@@ -28,9 +29,18 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        Log.e(TAG, "App starting!");
+
         setupViews();
         setupClickListener();
         loadSettings();
+        fixPermissions();
+    }
+
+    private void fixPermissions() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != 0) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE);
+        }
     }
 
     private void setupViews() {
@@ -40,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupClickListener() {
-        settingsSaveButton.setOnClickListener(new View.OnClickListener() {
+        this.settingsSaveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 saveSettings();
@@ -49,17 +59,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void saveSettings() {
-        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        SharedPreferences settings = getSharedPreferences(Settings.PREFS_NAME, 0);
         SharedPreferences.Editor editor = settings.edit();
-        editor.putString(SETTINGS_URL, this.settingsURLText.getText().toString());
-        editor.putString(SETTINGS_SECRET, this.settingsSecretText.getText().toString());
+        editor.putString(Settings.SETTINGS_URL, this.settingsURLText.getText().toString());
+        editor.putString(Settings.SETTINGS_SECRET, this.settingsSecretText.getText().toString());
         editor.commit();
+
+        runOnUiThread(new Runnable() {
+            public void run() {
+                Toast.makeText(MainActivity.this, "Settings saved", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void loadSettings() {
-        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
-        this.settingsURLText.setText(settings.getString(SETTINGS_URL, ""));
-        this.settingsSecretText.setText(settings.getString(SETTINGS_SECRET, ""));
+        SharedPreferences settings = getSharedPreferences(Settings.PREFS_NAME, 0);
+        this.settingsURLText.setText(settings.getString(Settings.SETTINGS_URL, ""));
+        this.settingsSecretText.setText(settings.getString(Settings.SETTINGS_SECRET, ""));
     }
 
 }

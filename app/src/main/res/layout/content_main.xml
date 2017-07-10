@@ -29,12 +29,10 @@
         android:text=""
         android:hint="Secret"/>
 
-
     <Button
         android:id="@+id/settingsSave"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Save" />
-
 
 </LinearLayout>
