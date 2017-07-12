@@ -29,6 +29,7 @@ android {
          * If issues with severity "fatal" are found, the release build is aborted.
          */
         checkReleaseBuilds false
+        abortOnError false
     }
 }
 
