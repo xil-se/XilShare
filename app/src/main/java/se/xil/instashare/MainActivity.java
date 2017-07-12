@@ -65,11 +65,7 @@ public class MainActivity extends AppCompatActivity {
         editor.putString(Settings.SETTINGS_SECRET, this.settingsSecretText.getText().toString());
         editor.commit();
 
-        runOnUiThread(new Runnable() {
-            public void run() {
-                Toast.makeText(MainActivity.this, "Settings saved", Toast.LENGTH_SHORT).show();
-            }
-        });
+        Utils.showToast(MainActivity.this, "Settings saved");
     }
 
     private void loadSettings() {

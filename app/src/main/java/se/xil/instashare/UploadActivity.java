@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -15,6 +16,7 @@ import android.widget.ProgressBar;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Vector;
 
 import okhttp3.Response;
 
@@ -47,6 +49,7 @@ public class UploadActivity extends AppCompatActivity {
     private void uploadFiles() {
         this.uploadCount = filenames.length;
         this.remainingUploads = filenames.length;
+        final Vector<String> uploadUrls = new Vector<>();
 
         for (String filename : filenames) {
             if (filename == null) {
@@ -60,7 +63,12 @@ public class UploadActivity extends AppCompatActivity {
                         final int progress = (int) ((bytesWritten * 1.0 / contentLength) * 1000);
                         Log.e(TAG, "Progress: " + progress);
                         if (uploadCount == 1) {
-                            uploadProgress.setProgress(progress);
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    uploadProgress.setProgress(progress);
+                                }
+                            });
                         }
                     }
 
@@ -72,11 +80,13 @@ public class UploadActivity extends AppCompatActivity {
                         try {
                             r = response.body().string();
                             Log.e(TAG, r);
+                            uploadUrls.add(r);
                             if (remainingUploads == 0) {
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        setClipboard(r);
+                                        String urls = TextUtils.join(" ", uploadUrls.toArray(new String[uploadUrls.size()]));
+                                        setClipboard(urls);
                                         finish();
                                     }
                                 });
@@ -123,7 +133,9 @@ public class UploadActivity extends AppCompatActivity {
     }
 
     private void abortUpload() {
-        // TODO
+        FileUploader.abort();
+        Utils.showToast(this, "Upload canceled");
+        Log.d(TAG, "Upload canceled");
     }
 
     protected void getFilenamesFromIntent() {
@@ -138,8 +150,11 @@ public class UploadActivity extends AppCompatActivity {
                 Log.e(TAG, "Wants to share: NULL");
             } else {
                 Log.e(TAG, "Wants to share: " + uri.getPath());
-                filenames = new String[]{MediaStoreHelper.getRealPathFromURI(
+                filenames = new String[]{MediaStoreHelper.getRealPathFromURI2(
                         this, uri)};
+                for (String f : filenames) {
+                    Log.e(TAG, "Path: " + f);
+                }
             }
         } else if (Intent.ACTION_SEND_MULTIPLE.equals(action)) {
             ArrayList<Uri> uris = intent
@@ -159,6 +174,5 @@ public class UploadActivity extends AppCompatActivity {
         }
 
     }
-
 
 }

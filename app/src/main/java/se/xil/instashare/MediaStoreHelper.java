@@ -8,8 +8,58 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.renderscript.ScriptGroup;
+import android.util.Log;
+
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class MediaStoreHelper {
+
+    private static String TAG = "InstaShare";
+
+    private static byte[] inputstreamToBytearray(InputStream is) throws IOException {
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+
+        int nRead;
+        byte[] data = new byte[16384];
+
+        while ((nRead = is.read(data, 0, data.length)) != -1) {
+            buffer.write(data, 0, nRead);
+        }
+
+        buffer.flush();
+
+        return buffer.toByteArray();
+    }
+
+    public static String getRealPathFromURI2(final Context context, Uri contentURI) {
+        String pathUri = contentURI.getPath();
+        try {
+            InputStream is = context.getContentResolver().openInputStream(contentURI);
+            byte[] bytes = inputstreamToBytearray(is);
+            Log.e(TAG, "Len: " + bytes.length);
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (isNewGooglePhotosUri(contentURI)) {
+            String newUri = pathUri.substring(pathUri.indexOf("content"), pathUri.lastIndexOf("/ACTUAL"));
+
+            return getDataColumn(context, Uri.parse(newUri), null, null);
+        } else {
+            return pathUri;
+        }
+    }
+
+
+    public static boolean isNewGooglePhotosUri(Uri uri) {
+        return "com.google.android.apps.photos.contentprovider".equals(uri.getAuthority());
+    }
 
     public static String getRealPathFromURI(final Context context, final Uri uri) {
 

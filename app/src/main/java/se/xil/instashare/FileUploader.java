@@ -8,6 +8,7 @@ import android.util.Log;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Vector;
 
 import okhttp3.Call;
 import okhttp3.MediaType;
@@ -26,9 +27,18 @@ public class FileUploader {
     private static final String TAG = "InstaShare";
 
     private static String secret = "";
+    private static Vector<Call> calls = new Vector<Call>();
 
     public static void setSecret(String _secret) {
         secret = _secret;
+    }
+
+    public static void abort() {
+        Vector<Call> callsCopy = (Vector<Call>) calls.clone();
+        for (Call call : callsCopy) {
+            call.cancel();
+            calls.remove(call);
+        }
     }
 
     public static class CountingFileRequestBody extends RequestBody {
@@ -73,7 +83,6 @@ public class FileUploader {
                 Util.closeQuietly(source);
             }
         }
-
     }
 
     public interface ProgressListener {
@@ -102,7 +111,6 @@ public class FileUploader {
                 .post(requestBody)
                 .build();
 
-
         OkHttpClient client = new OkHttpClient.Builder().build();
 
         Call call = client.newCall(request);
@@ -117,8 +125,8 @@ public class FileUploader {
             public void onResponse(Call call, okhttp3.Response response) throws IOException {
                 progressListener.onResponse(response);
             }
-
         });
 
+        calls.add(call);
     }
 }
