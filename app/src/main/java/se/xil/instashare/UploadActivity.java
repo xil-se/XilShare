@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import okhttp3.Response;
@@ -67,16 +68,21 @@ public class UploadActivity extends AppCompatActivity {
                     public void onResponse(Response response) {
                         remainingUploads--;
                         uploadProgress.setProgress(1000 - 1000 * remainingUploads / uploadCount);
-                        final String r = response.toString();
-                        Log.e(TAG, r);
-                        if (remainingUploads == 0) {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    setClipboard(r);
-                                    finish();
-                                }
-                            });
+                        final String r;
+                        try {
+                            r = response.body().string();
+                            Log.e(TAG, r);
+                            if (remainingUploads == 0) {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        setClipboard(r);
+                                        finish();
+                                    }
+                                });
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
                         }
                     }
 
