@@ -16,6 +16,8 @@ import android.widget.ProgressBar;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 
 import okhttp3.Response;
@@ -50,8 +52,9 @@ public class UploadActivity extends AppCompatActivity {
         this.uploadCount = uploadContent.length;
         this.remainingUploads = uploadContent.length;
         final Vector<String> uploadUrls = new Vector<>();
+        final Map<String, Long> fileSizes = new HashMap<String, Long>();
 
-        for (FileUploader.Content content : uploadContent) {
+        for (final FileUploader.Content content : uploadContent) {
             if (content == null) {
                 Log.d(TAG, "Content is null");
             } else {
@@ -60,6 +63,15 @@ public class UploadActivity extends AppCompatActivity {
                 FileUploader.upload(content, uploadUrl, new FileUploader.ProgressListener() {
                     @Override
                     public void update(long bytesWritten, long contentLength, boolean done) {
+                        fileSizes.put(content.filename, contentLength);
+
+                        // Yikes
+                        long total = 0;
+                        for (Map.Entry<String, Long> entry : fileSizes.entrySet()) {
+                            total += entry.getValue();
+                        }
+                        Log.d(TAG, "Total: " + total);
+
                         final int progress = (int) ((bytesWritten * 1.0 / contentLength) * 1000);
                         Log.e(TAG, "Progress: " + progress);
                         if (uploadCount == 1) {
