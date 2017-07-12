@@ -33,6 +33,23 @@ public class FileUploader {
         secret = _secret;
     }
 
+    public enum ContentType {
+        Filename,
+        ByteArray,
+    }
+
+    ;
+
+    public static class Content {
+        public ContentType type;
+        public String filename;
+        public byte[] bytes;
+
+        public String toString() {
+            return type.toString() + ": " + filename;
+        }
+    }
+
     public static void abort() {
         Vector<Call> callsCopy = (Vector<Call>) calls.clone();
         for (Call call : callsCopy) {
@@ -91,17 +108,22 @@ public class FileUploader {
         void onResponse(Response response);
     }
 
-    public static void upload(String filename, String url, final ProgressListener progressListener) {
-        Log.e(TAG, "Uploading " + filename);
-
-        final File file = new File(filename);
+    public static void upload(Content content, String url, final ProgressListener progressListener) {
+        Log.e(TAG, "Uploading " + content);
 
         MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);
 
-        final MediaType mediaType = MediaType.parse(filename);
-        builder.addFormDataPart("userfile", file.getName(), RequestBody.create(mediaType, file));
+        if (content.type == ContentType.ByteArray) {
+            final MediaType mediaType = MediaType.parse(content.filename);
+            builder.addFormDataPart("userfile", "placeholder.jpg", RequestBody.create(mediaType, content.bytes));
+            // TODO: Add progress crap here as well
+        } else if (content.type == ContentType.Filename) {
+            final File file = new File(content.filename);
+            final MediaType mediaType = MediaType.parse(content.filename);
+            builder.addFormDataPart("userfile", file.getName(), RequestBody.create(mediaType, file));
+            builder.addPart(new CountingFileRequestBody(file, "", progressListener));
+        }
         builder.addFormDataPart("secret", secret);
-        builder.addPart(new CountingFileRequestBody(file, "", progressListener));
 
 
         RequestBody requestBody = builder.build();

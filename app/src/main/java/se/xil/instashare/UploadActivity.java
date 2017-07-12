@@ -28,7 +28,7 @@ public class UploadActivity extends AppCompatActivity {
     private static final String TAG = "InstaShare";
     private ProgressBar uploadProgress;
     private Button uploadAbort;
-    private String[] filenames;
+    private FileUploader.Content[] uploadContent;
     private String uploadUrl;
     private String uploadSecret;
     private int uploadCount;
@@ -47,17 +47,17 @@ public class UploadActivity extends AppCompatActivity {
     }
 
     private void uploadFiles() {
-        this.uploadCount = filenames.length;
-        this.remainingUploads = filenames.length;
+        this.uploadCount = uploadContent.length;
+        this.remainingUploads = uploadContent.length;
         final Vector<String> uploadUrls = new Vector<>();
 
-        for (String filename : filenames) {
-            if (filename == null) {
-                Log.d(TAG, "Filename is null");
+        for (FileUploader.Content content : uploadContent) {
+            if (content == null) {
+                Log.d(TAG, "Content is null");
             } else {
-                Log.d(TAG, "Uploading " + filename);
+                Log.d(TAG, "Uploading " + content.filename);
                 Log.d(TAG, "Uploading " + uploadCount);
-                FileUploader.upload(filename, uploadUrl, new FileUploader.ProgressListener() {
+                FileUploader.upload(content, uploadUrl, new FileUploader.ProgressListener() {
                     @Override
                     public void update(long bytesWritten, long contentLength, boolean done) {
                         final int progress = (int) ((bytesWritten * 1.0 / contentLength) * 1000);
@@ -150,16 +150,17 @@ public class UploadActivity extends AppCompatActivity {
                 Log.e(TAG, "Wants to share: NULL");
             } else {
                 Log.e(TAG, "Wants to share: " + uri.getPath());
-                filenames = new String[]{MediaStoreHelper.getRealPathFromURI2(
-                        this, uri)};
-                for (String f : filenames) {
+                uploadContent = new FileUploader.Content[]{
+                        MediaStoreHelper.getContentFromURI(this, uri)
+                };
+                for (FileUploader.Content f : uploadContent) {
                     Log.e(TAG, "Path: " + f);
                 }
             }
         } else if (Intent.ACTION_SEND_MULTIPLE.equals(action)) {
             ArrayList<Uri> uris = intent
                     .getParcelableArrayListExtra(Intent.EXTRA_STREAM);
-            filenames = new String[uris.size()];
+            uploadContent = new FileUploader.Content[uris.size()];
 
             for (int i = 0; i < uris.size(); i++) {
                 if (uris.get(i) == null) {
@@ -167,7 +168,7 @@ public class UploadActivity extends AppCompatActivity {
                 } else {
                     Log.e(TAG, "Wants to share multiple: "
                             + uris.get(i).getPath());
-                    filenames[i] = MediaStoreHelper.getRealPathFromURI(this,
+                    uploadContent[i] = MediaStoreHelper.getContentFromURI(this,
                             uris.get(i));
                 }
             }

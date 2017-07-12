@@ -12,15 +12,18 @@ import android.renderscript.ScriptGroup;
 import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+
+// Thanks, internet. So much copy pasted code here.
 
 public class MediaStoreHelper {
 
     private static String TAG = "InstaShare";
 
-    private static byte[] inputstreamToBytearray(InputStream is) throws IOException {
+    private static byte[] inputStreamToBytearray(InputStream is) throws IOException {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
         int nRead;
@@ -35,31 +38,28 @@ public class MediaStoreHelper {
         return buffer.toByteArray();
     }
 
-    public static String getRealPathFromURI2(final Context context, Uri contentURI) {
-        String pathUri = contentURI.getPath();
-        try {
-            InputStream is = context.getContentResolver().openInputStream(contentURI);
-            byte[] bytes = inputstreamToBytearray(is);
-            Log.e(TAG, "Len: " + bytes.length);
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        if (isNewGooglePhotosUri(contentURI)) {
-            String newUri = pathUri.substring(pathUri.indexOf("content"), pathUri.lastIndexOf("/ACTUAL"));
-
-            return getDataColumn(context, Uri.parse(newUri), null, null);
+    public static FileUploader.Content getContentFromURI(final Context context, final Uri uri) {
+        FileUploader.Content content = new FileUploader.Content();
+        if (isNewGooglePhotosContentproviderUri(uri)) {
+            content.type = FileUploader.ContentType.ByteArray;
+            content.filename = uri.getPath();
+            try {
+                InputStream is = context.getContentResolver().openInputStream(uri);
+                content.bytes = inputStreamToBytearray(is);
+                Log.i(TAG, "Len: " + content.bytes.length);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         } else {
-            return pathUri;
+            content.type = FileUploader.ContentType.Filename;
+            content.filename = getRealPathFromURI(context, uri);
         }
+
+        return content;
     }
 
-
-    public static boolean isNewGooglePhotosUri(Uri uri) {
-        return "com.google.android.apps.photos.contentprovider".equals(uri.getAuthority());
-    }
 
     public static String getRealPathFromURI(final Context context, final Uri uri) {
 
@@ -104,7 +104,7 @@ public class MediaStoreHelper {
                 }
 
                 final String selection = "_id=?";
-                final String[] selectionArgs = new String[] {
+                final String[] selectionArgs = new String[]{
                         split[1]
                 };
 
@@ -183,5 +183,14 @@ public class MediaStoreHelper {
     public static boolean isGooglePhotosUri(Uri uri) {
         return "com.google.android.apps.photos.content".equals(uri.getAuthority());
     }
+
+    /**
+     * @param uri The Uri to check.
+     * @return Whether the Uri authority is Google Photos contentprovider.
+     */
+    public static boolean isNewGooglePhotosContentproviderUri(Uri uri) {
+        return "com.google.android.apps.photos.contentprovider".equals(uri.getAuthority());
+    }
+
 
 }
