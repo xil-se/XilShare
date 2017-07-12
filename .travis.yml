@@ -34,5 +34,5 @@ before_install:
 - ./gradlew dependencies || true
 
 script:
-- "./gradlew clean build connectedCheck -PdisablePreDex --stacktrace"
+- "./gradlew clean build -PdisablePreDex --stacktrace"
 
