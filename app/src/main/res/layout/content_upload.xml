@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="se.xil.instashare.UploadActivity"
+    tools:showIn="@layout/activity_upload"
+    android:weightSum="1">
+
+    <ProgressBar
+        android:id="@+id/uploadProgress"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:max="1000"
+        android:progress="0"
+        android:layout_weight="0.10" />
+
+    <Button
+        android:id="@+id/uploadAbort"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Abort!" />
+
+</LinearLayout>
