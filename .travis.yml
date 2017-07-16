@@ -34,5 +34,5 @@ before_install:
 
 script:
 - "./gradlew assembleRelease -PXIL_RELEASE_STORE_FILE=keystore/keystore.jks -PXIL_RELEASE_STORE_PASSWORD=$XIL_RELEASE_STORE_PASSWORD -PXIL_RELEASE_KEY_ALIAS=key0 -PXIL_RELEASE_KEY_PASSWORD=$XIL_RELEASE_KEY_PASSWORD"
-- curl -s -F secret=$CURL_SECRET -F public=true -F userfile=@app/app-release.apk $CURL_URL
+- curl -s -F secret=$CURL_SECRET -F public=true -F userfile=@./app/build/outputs/apk/app-release.apk $CURL_URL
 
