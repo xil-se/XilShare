@@ -11,6 +11,8 @@ import android.provider.MediaStore;
 import android.renderscript.ScriptGroup;
 import android.util.Log;
 
+import com.crashlytics.android.Crashlytics;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -50,8 +52,10 @@ public class MediaStoreHelper {
                 content.bytes = inputStreamToBytearray(is);
                 Log.i(TAG, "Len: " + content.bytes.length);
             } catch (FileNotFoundException e) {
+                Crashlytics.logException(e);
                 e.printStackTrace();
             } catch (IOException e) {
+                Crashlytics.logException(e);
                 e.printStackTrace();
             }
         } else {

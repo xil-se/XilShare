@@ -14,6 +14,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 
+import com.crashlytics.android.Crashlytics;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -104,6 +106,7 @@ public class UploadActivity extends AppCompatActivity {
                                 });
                             }
                         } catch (IOException e) {
+                            Crashlytics.logException(e);
                             e.printStackTrace();
                         }
                     }
