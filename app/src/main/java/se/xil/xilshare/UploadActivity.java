@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
+import io.fabric.sdk.android.Fabric;
 import okhttp3.Response;
 
 /**
@@ -41,10 +42,12 @@ public class UploadActivity extends AppCompatActivity {
     private int remainingUploads;
     private TextView uploadText;
     private TextView uploadPercentage;
+    private boolean hasUploadStarted = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_upload);
 
         setupViews();
@@ -58,6 +61,12 @@ public class UploadActivity extends AppCompatActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+
+                if (!hasUploadStarted) {
+                    hasUploadStarted = true;
+                    uploadProgress.setIndeterminate(false);
+                }
+
                 final int progress = (int) ((bytesWritten * 1.0 / contentLength) * 1000);
 
                 uploadProgress.setProgress(progress);

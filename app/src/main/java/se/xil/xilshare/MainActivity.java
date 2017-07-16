@@ -70,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
         editor.commit();
 
         Utils.showToast(MainActivity.this, "Settings saved");
+        finish();
     }
 
     private void loadSettings() {

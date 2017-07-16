@@ -17,6 +17,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="0.10"
+        android:indeterminate="true"
         android:max="1000"
         android:progress="0" />
 
@@ -33,14 +34,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0.10"
-            android:text="x"
+            android:text=""
             android:textSize="8pt" />
 
         <TextView
             android:id="@+id/uploadPercentage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="y"
+            android:text=""
             android:textAlignment="textEnd"
             android:textSize="8pt" />
     </LinearLayout>
