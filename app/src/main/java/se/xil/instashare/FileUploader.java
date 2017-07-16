@@ -90,12 +90,13 @@ public class FileUploader {
                 long total = 0;
                 long read;
 
+                this.listener.update(0, contentLength(), false);
                 while ((read = source.read(sink.buffer(), SEGMENT_SIZE)) != -1) {
                     total += read;
                     sink.flush();
                     this.listener.update(total, contentLength(), false);
-
                 }
+                this.listener.update(total, contentLength(), true);
             } finally {
                 Util.closeQuietly(source);
             }
@@ -109,7 +110,9 @@ public class FileUploader {
     }
 
     public static void upload(Content content, String url, final ProgressListener progressListener) {
-        Log.e(TAG, "Uploading " + content);
+        if (BuildConfig.DEBUG) {
+            Log.i(TAG, "Uploading " + content);
+        }
 
         MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);
 

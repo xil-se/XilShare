@@ -31,7 +31,9 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        Log.e(TAG, "App starting!");
+        if (BuildConfig.DEBUG) {
+            Log.i(TAG, "App starting!");
+        }
 
         setupViews();
         setupClickListener();

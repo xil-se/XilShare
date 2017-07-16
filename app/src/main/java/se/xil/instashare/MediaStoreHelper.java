@@ -42,15 +42,19 @@ public class MediaStoreHelper {
 
     public static FileUploader.Content getContentFromURI(final Context context, final Uri uri) {
         FileUploader.Content content = new FileUploader.Content();
-        Log.i(TAG, "Authority: " + uri.getAuthority());
-        Log.i(TAG, "path: " + uri.getPath());
+        if (BuildConfig.DEBUG) {
+            Log.i(TAG, "Authority: " + uri.getAuthority());
+            Log.i(TAG, "path: " + uri.getPath());
+        }
         if (isNewGooglePhotosContentproviderUri(uri) && !uri.getPath().contains("content://") || isExternalStorageDocument(uri)) {
             content.type = FileUploader.ContentType.ByteArray;
             content.filename = uri.getPath();
             try {
                 InputStream is = context.getContentResolver().openInputStream(uri);
                 content.bytes = inputStreamToBytearray(is);
-                Log.i(TAG, "Len: " + content.bytes.length);
+                if (BuildConfig.DEBUG) {
+                    Log.i(TAG, "Len: " + content.bytes.length);
+                }
             } catch (FileNotFoundException e) {
                 Crashlytics.logException(e);
                 e.printStackTrace();

@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.crashlytics.android.Crashlytics;
 
@@ -20,6 +21,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 
 import okhttp3.Response;
@@ -37,6 +39,8 @@ public class UploadActivity extends AppCompatActivity {
     private String uploadSecret;
     private int uploadCount;
     private int remainingUploads;
+    private TextView uploadText;
+    private TextView uploadPercentage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,50 +54,71 @@ public class UploadActivity extends AppCompatActivity {
         uploadFiles();
     }
 
+    private void updateProgress(final long bytesWritten, final long contentLength) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final int progress = (int) ((bytesWritten * 1.0 / contentLength) * 1000);
+
+                uploadProgress.setProgress(progress);
+
+                float percent = (float) progress / 10.0f;
+                uploadPercentage.setText(String.format("%.1f%%", percent));
+                uploadText.setText(String.format("%d/%d kB", bytesWritten / 1024, contentLength / 1024));
+            }
+        });
+    }
+
     private void uploadFiles() {
+        if (uploadContent == null) {
+            return;
+        }
+
         this.uploadCount = uploadContent.length;
         this.remainingUploads = uploadContent.length;
         final Vector<String> uploadUrls = new Vector<>();
-        final Map<String, Long> fileSizes = new HashMap<String, Long>();
+        final Map<String, Long> fileSizesMap = new HashMap<String, Long>();
+        final Map<String, Long> bytesWrittenMap = new HashMap<String, Long>();
 
         for (final FileUploader.Content content : uploadContent) {
             if (content == null) {
-                Log.d(TAG, "Content is null");
+                Log.e(TAG, "uploadFiles: Content is null");
             } else {
-                Log.d(TAG, "Uploading " + content.filename);
-                Log.d(TAG, "Uploading " + uploadCount);
+                if (BuildConfig.DEBUG) {
+                    Log.i(TAG, "Uploading " + content.filename);
+                    Log.i(TAG, "Uploading " + uploadCount);
+                }
                 FileUploader.upload(content, uploadUrl, new FileUploader.ProgressListener() {
                     @Override
                     public void update(long bytesWritten, long contentLength, boolean done) {
-                        fileSizes.put(content.filename, contentLength);
-
-                        // Yikes
-                        long total = 0;
-                        for (Map.Entry<String, Long> entry : fileSizes.entrySet()) {
-                            total += entry.getValue();
+                        if (bytesWritten == 0) {
+                            fileSizesMap.put(content.filename, contentLength);
                         }
-                        Log.d(TAG, "Total: " + total);
 
-                        final int progress = (int) ((bytesWritten * 1.0 / contentLength) * 1000);
-                        Log.e(TAG, "Progress: " + progress);
-                        if (uploadCount == 1) {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    uploadProgress.setProgress(progress);
-                                }
-                            });
+                        bytesWrittenMap.put(content.filename, bytesWritten);
+
+                        long fileSizesSum = 0;
+                        for (Map.Entry<String, Long> entry : fileSizesMap.entrySet()) {
+                            fileSizesSum += entry.getValue();
                         }
+
+                        long bytesWrittenSum = 0;
+                        for (Map.Entry<String, Long> entry : bytesWrittenMap.entrySet()) {
+                            bytesWrittenSum += entry.getValue();
+                        }
+
+                        updateProgress(bytesWrittenSum, fileSizesSum);
                     }
 
                     @Override
                     public void onResponse(Response response) {
                         remainingUploads--;
-                        uploadProgress.setProgress(1000 - 1000 * remainingUploads / uploadCount);
                         final String r;
                         try {
                             r = response.body().string();
-                            Log.e(TAG, r);
+                            if(BuildConfig.DEBUG) {
+                                Log.i(TAG, r);
+                            }
                             uploadUrls.add(r);
                             if (remainingUploads == 0) {
                                 runOnUiThread(new Runnable() {
@@ -101,7 +126,7 @@ public class UploadActivity extends AppCompatActivity {
                                     public void run() {
                                         String urls = TextUtils.join(" ", uploadUrls.toArray(new String[uploadUrls.size()]));
                                         setClipboard(urls);
-                                        finish();
+                                        //finish();
                                     }
                                 });
                             }
@@ -122,7 +147,9 @@ public class UploadActivity extends AppCompatActivity {
         ClipData myClip = ClipData.newPlainText("text", data);
         myClipboard.setPrimaryClip(myClip);
 
-        Log.e(TAG, "setting clipboard: " + data);
+        if (BuildConfig.DEBUG) {
+            Log.i(TAG, "setting clipboard: " + data);
+        }
     }
 
     private void loadSettings() {
@@ -135,6 +162,8 @@ public class UploadActivity extends AppCompatActivity {
 
     private void setupViews() {
         this.uploadProgress = (ProgressBar) findViewById(R.id.uploadProgress);
+        this.uploadText = (TextView) findViewById(R.id.uploadText);
+        this.uploadPercentage = (TextView) findViewById(R.id.uploadPercentage);
         this.uploadAbort = (Button) findViewById(R.id.uploadAbort);
     }
 
@@ -150,7 +179,9 @@ public class UploadActivity extends AppCompatActivity {
     private void abortUpload() {
         FileUploader.abort();
         Utils.showToast(this, "Upload canceled");
-        Log.d(TAG, "Upload canceled");
+        if (BuildConfig.DEBUG) {
+            Log.i(TAG, "Upload canceled");
+        }
     }
 
     protected void getFilenamesFromIntent() {
@@ -159,18 +190,44 @@ public class UploadActivity extends AppCompatActivity {
 
         if (Intent.ACTION_SEND.equals(action)) {
             Bundle bundle = intent.getExtras();
-            Uri uri = (Uri) bundle.get(Intent.EXTRA_STREAM);
+            Set<String> ks = bundle.keySet();
 
-            if (uri == null) {
-                Log.e(TAG, "Wants to share: NULL");
-            } else {
-                Log.e(TAG, "Wants to share: " + uri.getPath());
-                uploadContent = new FileUploader.Content[]{
-                        MediaStoreHelper.getContentFromURI(this, uri)
-                };
-                for (FileUploader.Content f : uploadContent) {
-                    Log.e(TAG, "Path: " + f);
+            if (BuildConfig.DEBUG) {
+                for (String k : ks) {
+                    Log.i(TAG, String.format("[%s: %s]", k, bundle.get(k)));
                 }
+            }
+
+            if (ks.contains(Intent.EXTRA_STREAM)) {
+                Uri uri = (Uri) bundle.get(Intent.EXTRA_STREAM);
+
+                if (uri == null) {
+                    if (BuildConfig.DEBUG) {
+                        Log.e(TAG, "Bundle EXTRA_STREAM uri is null");
+                    }
+                } else {
+                    if (BuildConfig.DEBUG) {
+                        Log.i(TAG, "Wants to share: " + uri.getPath());
+                    }
+                    uploadContent = new FileUploader.Content[]{
+                            MediaStoreHelper.getContentFromURI(this, uri)
+                    };
+                    if (BuildConfig.DEBUG) {
+                        for (FileUploader.Content f : uploadContent) {
+                            Log.i(TAG, "Path: " + f);
+                        }
+                    }
+                }
+            } else if (ks.contains(Intent.EXTRA_TEXT)) {
+                // Sharing a text entry, this can happens when you share a google url
+                String extraText = bundle.getString(Intent.EXTRA_TEXT);
+                if (BuildConfig.DEBUG) {
+                    Log.i(TAG, String.format("Wants to share text: [%s]", extraText));
+                }
+                // TODO: Upload the text and put the url in the clipboard
+                // For now, let's just set the clipboard to the text...
+                setClipboard(extraText);
+                finish();
             }
         } else if (Intent.ACTION_SEND_MULTIPLE.equals(action)) {
             ArrayList<Uri> uris = intent
@@ -179,10 +236,14 @@ public class UploadActivity extends AppCompatActivity {
 
             for (int i = 0; i < uris.size(); i++) {
                 if (uris.get(i) == null) {
-                    Log.e(TAG, "Wants to share multiple: NULL");
+                    if (BuildConfig.DEBUG) {
+                        Log.e(TAG, "Wants to share multiple: got a null entry");
+                    }
                 } else {
-                    Log.e(TAG, "Wants to share multiple: "
-                            + uris.get(i).getPath());
+                    if (BuildConfig.DEBUG) {
+                        Log.i(TAG, "Wants to share multiple: "
+                                + uris.get(i).getPath());
+                    }
                     uploadContent[i] = MediaStoreHelper.getContentFromURI(this,
                             uris.get(i));
                 }
