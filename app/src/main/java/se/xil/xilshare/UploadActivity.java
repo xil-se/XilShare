@@ -193,6 +193,7 @@ public class UploadActivity extends AppCompatActivity {
         if (BuildConfig.DEBUG) {
             Log.i(TAG, "Upload canceled");
         }
+        finish();
     }
 
     protected void getFilenamesFromIntent() {
