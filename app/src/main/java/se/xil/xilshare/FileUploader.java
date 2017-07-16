@@ -1,4 +1,4 @@
-package se.xil.instashare;
+package se.xil.xilshare;
 
 /**
  * Created by Konrad on 2017-07-10.
@@ -26,7 +26,7 @@ import okio.Source;
 
 
 public class FileUploader {
-    private static final String TAG = "InstaShare";
+    private static final String TAG = "XilShare";
 
     private static String secret = "";
     private static Vector<Call> calls = new Vector<Call>();

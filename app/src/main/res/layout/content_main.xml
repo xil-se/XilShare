@@ -10,7 +10,7 @@
     android:layout_marginRight="8dp"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     android:orientation="vertical"
-    tools:context="se.xil.instashare.MainActivity"
+    tools:context="se.xil.xilshare.MainActivity"
     tools:showIn="@layout/activity_main">
 
     <EditText

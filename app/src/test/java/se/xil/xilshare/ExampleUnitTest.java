@@ -1,4 +1,4 @@
-package se.xil.instashare;
+package se.xil.xilshare;
 
 import org.junit.Test;
 

@@ -1,4 +1,4 @@
-package se.xil.instashare;
+package se.xil.xilshare;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -31,7 +31,7 @@ import okhttp3.Response;
  */
 
 public class UploadActivity extends AppCompatActivity {
-    private static final String TAG = "InstaShare";
+    private static final String TAG = "XilShare";
     private ProgressBar uploadProgress;
     private Button uploadAbort;
     private FileUploader.Content[] uploadContent;

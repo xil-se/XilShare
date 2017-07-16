@@ -1,4 +1,4 @@
-package se.xil.instashare;
+package se.xil.xilshare;
 
 import android.Manifest;
 import android.content.SharedPreferences;
@@ -16,7 +16,7 @@ import io.fabric.sdk.android.Fabric;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String TAG = "InstaShare";
+    private static final String TAG = "XilShare";
     private static final int PERMISSION_REQUEST_CODE = 1;
 
     private Button settingsSaveButton;

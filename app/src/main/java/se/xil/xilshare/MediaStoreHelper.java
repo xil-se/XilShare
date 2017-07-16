@@ -1,4 +1,4 @@
-package se.xil.instashare;
+package se.xil.xilshare;
 
 import android.content.ContentUris;
 import android.content.Context;
@@ -8,13 +8,11 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
-import android.renderscript.ScriptGroup;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,7 +21,7 @@ import java.io.InputStream;
 
 public class MediaStoreHelper {
 
-    private static String TAG = "InstaShare";
+    private static String TAG = "XilShare";
 
     private static byte[] inputStreamToBytearray(InputStream is) throws IOException {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
