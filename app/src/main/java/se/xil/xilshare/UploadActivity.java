@@ -73,7 +73,7 @@ public class UploadActivity extends AppCompatActivity {
 
                 float percent = (float) progress / 10.0f;
                 uploadPercentage.setText(String.format("%.1f%%", percent));
-                uploadText.setText(String.format("%d/%d kB", bytesWritten / 1024, contentLength / 1024));
+                uploadText.setText(String.format("%,d/%,d kB", bytesWritten / 1024, contentLength / 1024));
             }
         });
     }
