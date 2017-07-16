@@ -116,7 +116,7 @@ public class UploadActivity extends AppCompatActivity {
                         final String r;
                         try {
                             r = response.body().string();
-                            if(BuildConfig.DEBUG) {
+                            if (BuildConfig.DEBUG) {
                                 Log.i(TAG, r);
                             }
                             uploadUrls.add(r);
@@ -126,13 +126,15 @@ public class UploadActivity extends AppCompatActivity {
                                     public void run() {
                                         String urls = TextUtils.join(" ", uploadUrls.toArray(new String[uploadUrls.size()]));
                                         setClipboard(urls);
-                                        //finish();
+                                        Utils.showToast(UploadActivity.this, "Upload finished");
+                                        finish();
                                     }
                                 });
                             }
                         } catch (IOException e) {
                             Crashlytics.logException(e);
                             e.printStackTrace();
+                            Utils.showToast(UploadActivity.this, "Error, go home and cry");
                         }
                     }
 
@@ -227,6 +229,7 @@ public class UploadActivity extends AppCompatActivity {
                 // TODO: Upload the text and put the url in the clipboard
                 // For now, let's just set the clipboard to the text...
                 setClipboard(extraText);
+                Utils.showToast(this, "Shared text now in clipboard");
                 finish();
             }
         } else if (Intent.ACTION_SEND_MULTIPLE.equals(action)) {
