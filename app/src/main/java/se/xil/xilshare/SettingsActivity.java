@@ -1,7 +1,6 @@
 package se.xil.xilshare;
 
 import android.Manifest;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
@@ -15,21 +14,25 @@ import android.widget.TextView;
 import com.crashlytics.android.Crashlytics;
 import io.fabric.sdk.android.Fabric;
 
-public class MainActivity extends AppCompatActivity {
+public class SettingsActivity extends AppCompatActivity {
 
     private static final String TAG = "XilShare";
     private static final int PERMISSION_REQUEST_CODE = 1;
 
-    private Button openUploadsButton;
-    private Button openSettingsButton;
+    private Button settingsSaveButton;
+    private TextView settingsURLText;
+    private TextView settingsSecretText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Fabric.with(this, new Crashlytics());
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_settings);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         if (BuildConfig.DEBUG) {
             Log.i(TAG, "App starting!");
@@ -37,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
 
         setupViews();
         setupClickListener();
+        loadSettings();
         fixPermissions();
     }
 
@@ -47,25 +51,35 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupViews() {
-        this.openUploadsButton = (Button) findViewById(R.id.openUploadsButton);
-        this.openSettingsButton = (Button) findViewById(R.id.openSettingsButton);
+        this.settingsSaveButton = (Button) findViewById(R.id.settingsSave);
+        this.settingsURLText = (TextView) findViewById(R.id.settingsURL);
+        this.settingsSecretText = (TextView) findViewById(R.id.settingsSecret);
     }
 
     private void setupClickListener() {
-        this.openUploadsButton.setOnClickListener(new View.OnClickListener() {
+        this.settingsSaveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, UploadsActivity.class);
-                startActivity(intent);
+                saveSettings();
             }
         });
-        this.openSettingsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-                startActivity(intent);
-            }
-        });
+    }
+
+    private void saveSettings() {
+        SharedPreferences settings = getSharedPreferences(Settings.PREFS_NAME, 0);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString(Settings.SETTINGS_URL, this.settingsURLText.getText().toString());
+        editor.putString(Settings.SETTINGS_SECRET, this.settingsSecretText.getText().toString());
+        editor.commit();
+
+        Utils.showToast(SettingsActivity.this, "Settings saved");
+        finish();
+    }
+
+    private void loadSettings() {
+        SharedPreferences settings = getSharedPreferences(Settings.PREFS_NAME, 0);
+        this.settingsURLText.setText(settings.getString(Settings.SETTINGS_URL, ""));
+        this.settingsSecretText.setText(settings.getString(Settings.SETTINGS_SECRET, ""));
     }
 
 }

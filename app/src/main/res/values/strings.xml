@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">XilShare</string>
     <string name="settings">Settings</string>
+    <string name="uploads">Uploads</string>
+    <string name="title_activity_uploads">UploadsActivity</string>
+    <string name="title_activity_settings">SettingsActivity</string>
 </resources>
