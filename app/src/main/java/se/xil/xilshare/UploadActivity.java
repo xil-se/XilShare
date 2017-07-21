@@ -16,6 +16,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.crashlytics.android.Crashlytics;
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.ShareEvent;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -136,6 +138,7 @@ public class UploadActivity extends AppCompatActivity {
                                         String urls = TextUtils.join(" ", uploadUrls.toArray(new String[uploadUrls.size()]));
                                         setClipboard(urls);
                                         Utils.showToast(UploadActivity.this, "Upload finished");
+                                        Answers.getInstance().logShare(new ShareEvent());
                                         finish();
                                     }
                                 });
