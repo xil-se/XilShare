@@ -29,6 +29,8 @@ android:
 before_install:
 - echo y | android update sdk --no-ui --all --filter "tools,build-tools-26.0.0,platform-tools,android-26,extra-android-m2repository"
 - yes | sdkmanager "platforms;android-26"
+- echo yes | sdkmanager "extras;m2repository;com;android;support;constraint;constraint-layout;1.0.2"
+- echo yes | sdkmanager "extras;m2repository;com;android;support;constraint;constraint-layout-solver;1.0.2"
 - chmod +x gradlew
 
 script:
