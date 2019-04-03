@@ -6,8 +6,6 @@ package se.xil.xilshare;
 
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Vector;
@@ -39,6 +37,8 @@ public class FileUploader {
         Filename,
         ByteArray,
     }
+
+    ;
 
     public static class Content {
         public ContentType type;
@@ -143,7 +143,6 @@ public class FileUploader {
         call.enqueue(new okhttp3.Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                Crashlytics.logException(e);
                 e.printStackTrace();
             }
 

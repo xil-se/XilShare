@@ -10,8 +10,6 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
-
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -54,10 +52,8 @@ public class MediaStoreHelper {
                     Log.i(TAG, "Len: " + content.bytes.length);
                 }
             } catch (FileNotFoundException e) {
-                Crashlytics.logException(e);
                 e.printStackTrace();
             } catch (IOException e) {
-                Crashlytics.logException(e);
                 e.printStackTrace();
             }
         } else {
