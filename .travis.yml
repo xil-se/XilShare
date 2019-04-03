@@ -27,7 +27,7 @@ android:
  - google-gdk-license-.+
 
 before_install:
-- echo y | $ANDROID_HOME/tools/bin/sdkmanager “extras;m2repository;com;android;support;constraint;constraint-layout-solver;1.0.2”
+- yes | sdkmanager "platforms;android-26"
 - chmod +x gradlew
 
 script:
