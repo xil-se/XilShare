@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
-import io.fabric.sdk.android.Fabric;
 import okhttp3.Response;
 
 /**
@@ -45,7 +44,6 @@ public class UploadActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_upload);
 
         setupViews();
