@@ -42,7 +42,7 @@ public class MediaStoreHelper {
             Log.i(TAG, "Authority: " + uri.getAuthority());
             Log.i(TAG, "path: " + uri.getPath());
         }
-        if (isNewGooglePhotosContentproviderUri(uri) && !uri.getPath().contains("content://") || isExternalStorageDocument(uri)) {
+        if (Build.VERSION.SDK_INT >= 33 || (isNewGooglePhotosContentproviderUri(uri) && !uri.getPath().contains("content://")) || isExternalStorageDocument(uri)) {
             content.type = FileUploader.ContentType.ByteArray;
             content.filename = uri.getPath();
             try {
