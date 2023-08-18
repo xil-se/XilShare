@@ -6,12 +6,6 @@ buildscript {
     }
 }
 
-allprojects {
-    tasks.withType(JavaCompile) {
-        options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
-    }
-}
-
 android {
     signingConfigs {
         config {
