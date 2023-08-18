@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -191,6 +192,7 @@ public class UploadActivity extends AppCompatActivity {
         finish();
     }
 
+    @SuppressWarnings({"deprecation", "RedundantSuppression"})
     protected void getFilenamesFromIntent() {
         final Intent intent = getIntent();
         final String action = intent.getAction();
@@ -206,7 +208,12 @@ public class UploadActivity extends AppCompatActivity {
             }
 
             if (ks.contains(Intent.EXTRA_STREAM)) {
-                Uri uri = (Uri) bundle.get(Intent.EXTRA_STREAM);
+                Uri uri;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    uri = bundle.getParcelable(Intent.EXTRA_STREAM, Uri.class);
+                } else {
+                    uri = (Uri) bundle.getParcelable(Intent.EXTRA_STREAM);
+                }
 
                 if (uri == null) {
                     if (BuildConfig.DEBUG) {
@@ -238,8 +245,14 @@ public class UploadActivity extends AppCompatActivity {
                 finish();
             }
         } else if (Intent.ACTION_SEND_MULTIPLE.equals(action)) {
-            ArrayList<Uri> uris = intent
-                    .getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+            ArrayList<Uri> uris;
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+                uris = intent
+                        .getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+            } else {
+                uris = intent
+                        .getParcelableArrayListExtra(Intent.EXTRA_STREAM, Uri.class);
+            }
             uploadContent = new FileUploader.Content[uris.size()];
 
             for (int i = 0; i < uris.size(); i++) {

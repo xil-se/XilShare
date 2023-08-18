@@ -51,7 +51,7 @@ public class FileUploader {
     }
 
     public static void abort() {
-        Vector<Call> callsCopy = (Vector<Call>) calls.clone();
+        @SuppressWarnings("unchecked") Vector<Call> callsCopy = (Vector<Call>) calls.clone();
         for (Call call : callsCopy) {
             call.cancel();
             calls.remove(call);
@@ -91,7 +91,7 @@ public class FileUploader {
                 long read;
 
                 this.listener.update(0, contentLength(), false);
-                while ((read = source.read(sink.buffer(), SEGMENT_SIZE)) != -1) {
+                while ((read = source.read(sink.getBuffer(), SEGMENT_SIZE)) != -1) {
                     total += read;
                     sink.flush();
                     this.listener.update(total, contentLength(), false);
@@ -118,12 +118,12 @@ public class FileUploader {
 
         if (content.type == ContentType.ByteArray) {
             final MediaType mediaType = MediaType.parse(content.filename);
-            builder.addFormDataPart("userfile", "placeholder.jpg", RequestBody.create(mediaType, content.bytes));
+            builder.addFormDataPart("userfile", "placeholder.jpg", RequestBody.create(content.bytes, mediaType));
             // TODO: Add progress crap here as well
         } else if (content.type == ContentType.Filename) {
             final File file = new File(content.filename);
             final MediaType mediaType = MediaType.parse(content.filename);
-            builder.addFormDataPart("userfile", file.getName(), RequestBody.create(mediaType, file));
+            builder.addFormDataPart("userfile", file.getName(), RequestBody.create(file, mediaType));
             builder.addPart(new CountingFileRequestBody(file, "", progressListener));
         }
         builder.addFormDataPart("secret", secret);
